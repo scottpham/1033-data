@@ -128,41 +128,59 @@ function render(selected) {
                 .attr("class", "bar")
                 .attr("x", 0)
                 .attr("fill", function(d, i) { return barColor(d); })
-                //.attr("width", 0)//set width to 0 and then transition below
+                .attr("width", 0)//set width to 0 and then transition below
                 .attr("y", function(d){ return y(d.state); })
                 .attr("height", y.rangeBand())
-                .on("mouseover", function(d) { //tooltip
-                    div.transition()
-                        .duration(200)
-                        .style("opacity", 0.9);
-                    div.html(shortDollarFormat(d[selected]))
-                        .style("left", (d3.event.pageX) + "px")
-                        .style("top", (d3.event.pageY - 28) + "px");
+                .on("mouseover", function(d, i) { //label hover effects
+                    svg.selectAll(".label-" + i)
+                        .transition()
+                        .duration(100)
+                        .style("fill", "black");
+
+                    svg.selectAll(".tick-" + i)
+                        .transition()
+                        .duration(100)
+                        .style("fill", "black");
                     })
-                .on("mouseout", function(d) { //make tooltip disappear
-                    div.transition()
-                        .duration(500)
-                        .style("opacity", 0)
+                .on("mouseout", function(d, i) { //make label hover disappaer
+                    svg.selectAll(".label-" + i)
+                        .transition()
+                        .duration(100)
+                        .style("fill", "lightgray");
+
+                    svg.selectAll(".tick-" + i)
+                        .transition()
+                        .duration(100)
+                        .style("fill", "gray");
                 }); 
 
-        //the real width
+        //build width and apply transition
         svg.selectAll(".bar")
             .transition()
             .attr("width", function(d){ return x(d[selected]); });
 
 
-        svg.selectAll(".text")
+        svg.selectAll(".label")
             .data(data)
             .enter().append("text")
                 .attr("class", "label")
+                .style("opacity",0) //for fade-in
                 .text(function(d) { return "-" + shortDollarFormat(d[selected]); })
                 .attr("y", function(d) { return y(d.state) + (y.rangeBand()/2); })
                 .attr("x", function(d) { return x(d[selected]) + 3; })
-                .attr("dy", 3)
-            ;
+                .attr("dy", 3);
 
+        //fade in
+        svg.selectAll(".label")
+            .transition()
+            .duration(500)
+            .style("opacity", 1)
+            ;
         
-        
+        //put an index number on each label so that mouseover events can target them individually
+        svg.selectAll(".label")
+            .attr("class", function(d, i){ return "label label-" + i; } );
+
         //y axis 
         svg.append("g")
             .attr("transform", "translate(0, 0)")
@@ -172,13 +190,27 @@ function render(selected) {
 
         svg.select(".y.axis")
             .selectAll(".tick")
-            .attr("class", function(d, i){ return "tick tick-" + i; } ); //probably not necessary
+            .attr("class", function(d, i){ return "tick tick-" + i; } )
+            .on("mouseover", function(d, i) { //tooltip
+                    svg.selectAll(".label-" + i)
+                        .transition()
+                        .duration(100)
+                        .style("fill", "black");
+                    })
+            .on("mouseout", function(d, i) { //make tooltip disappear
+                svg.selectAll(".label-" + i)
+                    .transition()
+                    .duration(100)
+                    .style("fill", "lightgray");
+            } )
 
         //x axis
         svg.append("g")
             .attr("class", "x axis")
             .attr("transform", "translate(0, 0)")
             .call(xAxis);
+
+
     });
 
     //coercion function
