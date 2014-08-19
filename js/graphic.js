@@ -75,7 +75,7 @@ function render(selected) {
     var height = Math.ceil((width * aspect_height) / aspect_width) - margin.top - margin.bottom;
 
     var x = d3.scale.linear().range([0, width]),
-        y = d3.scale.ordinal().rangeRoundBands([0, height], 0.1);
+        y = d3.scale.ordinal().rangeRoundBands([0, height], 0.15);
 
     var dollarFormat = d3.format("$,f");
     var shortDollarFormat = d3.format("$,.3s")
@@ -85,12 +85,12 @@ function render(selected) {
         .ticks(tickNumber)
         .tickFormat(shortDollarFormat)
         .orient("top")
-        .tickSize(5);
+        .tickSize(5, 0, 0);
 
     var yAxis = d3.svg.axis()
         .scale(y)
         .orient("left")
-        .tickSize(5);
+        .tickSize(5, 0, 0);
 
     var svg = d3.select("#graphic").append("svg")
         .attr("width", width + margin.left + margin.right)
