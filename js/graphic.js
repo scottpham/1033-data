@@ -1,7 +1,9 @@
 var pymChild = null,
     mobileThreshold = 300,
     aspect_width = 1,
-    aspect_height = 1;
+    aspect_height = 1,
+    tickNumber = 10
+    ;
 
 var $graphic = $('#graphic');
 
@@ -17,20 +19,22 @@ var colors = {
  * Render the graphic
  */
 //check for svg
-function draw_graphic(width){
+function draw_graphic(selected){
     if (Modernizr.svg){
         $graphic.empty();
 
-    render('graphic', width)
+    var selected = d3.select("#dropdown") //store dropdownin array
+    render(selected[0][0].value); //get value of dropdown
+
     }
 
 }
 
-function render(id, container_width) {
+function render(selected) {
 
     //standard margins
     var margin = {
-        top: 0,
+        top: 30,
         right: 40,
         bottom: 20,
         left: 45
@@ -58,17 +62,29 @@ function render(id, container_width) {
         }
     } */
 
+    //first element is red
+    function barColor(d){
+            if(d.state == 'CA'){
+                return colors.red1;
+        }
+            else{
+                return colors.blue1;
+            }
+    }
 
     var height = Math.ceil((width * aspect_height) / aspect_width) - margin.top - margin.bottom;
 
     var x = d3.scale.linear().range([0, width]),
         y = d3.scale.ordinal().rangeRoundBands([0, height], 0.1);
 
+    var dollarFormat = d3.format("$,f");
+    var shortDollarFormat = d3.format("$,.3s")
+
     var xAxis = d3.svg.axis()
         .scale(x)
-        .ticks(5)
-        .tickFormat(mobile.format)
-        .orient("bottom")
+        .ticks(tickNumber)
+        .tickFormat(shortDollarFormat)
+        .orient("top")
         .tickSize(5);
 
     var yAxis = d3.svg.axis()
@@ -86,32 +102,21 @@ function render(id, container_width) {
     var div = d3.select("#graphic").append("div")
         .attr("class", "tooltip")
         .style("opacity", 0);
-    
-    //first element is red
-    function barColor(d){
-            if(d.state == 'CA'){
-                return colors.red1;
-        }
-            else{
-                return colors.blue1;
-            }
-    }
 
     //gridlines
     var make_x_axis = function() { 
             return d3.svg.axis()
                 .scale(x)
                     .orient("bottom")
-                    .ticks(5)
-                     }
+                    .ticks(tickNumber)
+                }
 
-    var dollarFormat = d3.format("$,f");
     //asynchronous call
     d3.csv("state-purchases.csv", type, function(error, data) {
         x.domain([0, d3.max(data, function(d) { return d["2013"]; })]);
-
         y.domain(data.map(function(d) { return d.state; }));
 
+        console.log(d3.max(data, function(d) { return d["2013"]; }));
         //grid
         svg.append("g")
             .attr("class", "grid")
@@ -127,14 +132,14 @@ function render(id, container_width) {
                 .attr("class", "bar")
                 .attr("x", 0)
                 .attr("fill", function(d, i) { return barColor(d); })
-                .attr("width", function(d){ return x(d["2013"]); })
+                .attr("width", function(d){ return x(d[selected]); })
                 .attr("y", function(d){ return y(d.state); })
                 .attr("height", y.rangeBand())
                 .on("mouseover", function(d) { //tooltip
                     div.transition()
                         .duration(200)
                         .style("opacity", 0.9);
-                    div.html(dollarFormat(d["2013"]))
+                    div.html(shortDollarFormat(d[selected]))
                         .style("left", (d3.event.pageX) + "px")
                         .style("top", (d3.event.pageY - 28) + "px");
                     })
@@ -170,39 +175,15 @@ function render(id, container_width) {
         //x axis
         svg.append("g")
             .attr("class", "x axis")
-            .attr("transform", "translate(0," + height + ")")
+            .attr("transform", "translate(0, 0)")
             .call(xAxis);
-
     });
 
     //coercion function
     function type(d){
-        d["2013"] = +d["2013"];
+        d[selected] = +d[selected];
+        d["2013"] = +d["2013"]; //necessary to set domain correctly
         return d;
-    }
-
-    //textwrapper
-    function wrap(text, width) {
-      text.each(function() {
-        var text = d3.select(this),
-            words = text.text().split(/\s+/).reverse(),
-            word,
-            line = [],
-            lineNumber = 0,
-            lineHeight = 1.1, // ems
-            y = text.attr("y"),
-            dy = parseFloat(text.attr("dy")),
-            tspan = text.text(null).append("tspan").attr("x", 0).attr("y", y).attr("dy", dy + "em");
-        while (word = words.pop()) {
-          line.push(word);
-          tspan.text(line.join(" "));
-          if (tspan.node().getComputedTextLength() > width) {
-            line.pop();
-            tspan.text(line.join(" "));
-            line = [word];
-            tspan = text.append("tspan").attr("x", 0).attr("y", y).attr("dy", ++lineNumber * lineHeight + dy + "em").text(word);}
-        }
-        });
     }
 
     if (pymChild) {
@@ -222,9 +203,16 @@ $(window).load(function() {
             renderCallback: draw_graphic
         });
     }
-    else {pymChild = new pym.Child();
+    else { pymChild = new pym.Child();
     }
 })
+
+//listener on dropdown
+d3.select("#dropdown").on("change", function() {
+    selected = this.value;
+    draw_graphic(selected);
+
+    })
 
 
 
