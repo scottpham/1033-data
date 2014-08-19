@@ -40,27 +40,23 @@ function render(selected) {
         left: 45
     };
 
-    var mobile = {};
+    
 
     //find width of container
     var width = $('#graphic').width() - margin.left - margin.right;
      
-    /*/check for mobile and change everything
+
+    /*check for mobile and change everything
+
+    var mobile = {};
     function ifMobile (w) {
         if(w < mobileThreshold){
-            margin.left = margin.left/2;
-            mobile.spacer = 0.25;
-            mobile.axis = -11;
-            si = d3.format(",.3s");
-            siMod = function(val) {return si(val).replace(/G/, 'B')} 
-            mobile.format = siMod;
         }
         else{
-            mobile.spacer = 0.15
-            mobile.axis = 0;
-            mobile.format = d3.format(",f");
         }
-    } */
+    } 
+    ifMobile(width);
+    */
 
     //first element is red
     function barColor(d){
