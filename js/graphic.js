@@ -40,8 +40,6 @@ function render(selected) {
         left: 45
     };
 
-    
-
     //find width of container
     var width = $('#graphic').width() - margin.left - margin.right;
      
@@ -101,18 +99,15 @@ function render(selected) {
 
     //gridlines
     var make_x_axis = function() { 
-            return d3.svg.axis()
-                .scale(x)
-                    .orient("bottom")
-                    .ticks(tickNumber)
-                }
-
+        return d3.svg.axis()
+            .scale(x)
+                .orient("bottom")
+                .ticks(tickNumber)
+            }
     //asynchronous call
     d3.csv("state-purchases.csv", type, function(error, data) {
         x.domain([0, d3.max(data, function(d) { return d["2013"]; })]);
         y.domain(data.map(function(d) { return d.state; }));
-
-        console.log(d3.max(data, function(d) { return d["2013"]; }));
         //grid
         svg.append("g")
             .attr("class", "grid")
@@ -128,7 +123,8 @@ function render(selected) {
                 .attr("class", "bar")
                 .attr("x", 0)
                 .attr("fill", function(d, i) { return barColor(d); })
-                .attr("width", function(d){ return x(d[selected]); })
+                //.attr("width", function(d){ return x(d[selected]); })
+                .attr("width", 0)
                 .attr("y", function(d){ return y(d.state); })
                 .attr("height", y.rangeBand())
                 .on("mouseover", function(d) { //tooltip
@@ -139,6 +135,8 @@ function render(selected) {
                         .style("left", (d3.event.pageX) + "px")
                         .style("top", (d3.event.pageY - 28) + "px");
                     })
+
+                //ToDo: Figure out how to activate popup on tick highlight
                 /*.on("mouseover", function(d, i) { //highlight ticks
                     svg.selectAll(".tick-" + i)
                         .transition()
@@ -156,6 +154,10 @@ function render(selected) {
                         .duration(500)
                         .style("opacity", 0)
                 }); 
+
+        svg.selectAll(".bar")
+            .transition()
+            .attr("width", function(d){ return x(d[selected]); });
         
         //y axis 
         svg.append("g")
