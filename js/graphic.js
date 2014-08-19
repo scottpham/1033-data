@@ -1,5 +1,5 @@
 var pymChild = null,
-    mobileThreshold = 300,
+    mobileThreshold = 500,
     aspect_width = 1,
     aspect_height = 1,
     tickNumber = 10
@@ -35,28 +35,29 @@ function render(selected) {
     //standard margins
     var margin = {
         top: 30,
-        right: 40,
+        right: 50,
         bottom: 20,
         left: 45
     };
 
     //find width of container
     var width = $('#graphic').width() - margin.left - margin.right;
-     
-
-    /*check for mobile and change everything
 
     var mobile = {};
+    //check for mobile
     function ifMobile (w) {
         if(w < mobileThreshold){
+            tickNumber = 5;
         }
         else{
+            tickNumber = 10;
         }
     } 
+    //call mobile check
     ifMobile(width);
-    */
 
-    //first element is red
+
+    //highlight California
     function barColor(d){
             if(d.state == 'CA'){
                 return colors.red1;
@@ -68,16 +69,18 @@ function render(selected) {
 
     var height = Math.ceil((width * aspect_height) / aspect_width) - margin.top - margin.bottom;
 
+    if(height < 550){ height = 550;} //can't let it get lower or becomes unreadable
+
     var x = d3.scale.linear().range([0, width]),
         y = d3.scale.ordinal().rangeRoundBands([0, height], 0.15);
 
-    var dollarFormat = d3.format("$,f");
+    var dollarFormat = d3.format("$,.1s");
     var shortDollarFormat = d3.format("$,.3s")
 
     var xAxis = d3.svg.axis()
         .scale(x)
         .ticks(tickNumber)
-        .tickFormat(shortDollarFormat)
+        .tickFormat(dollarFormat)
         .orient("top")
         .tickSize(5, 0, 0);
 
@@ -174,6 +177,7 @@ function render(selected) {
         svg.append("g")
             .attr("class", "x axis")
             .attr("transform", "translate(0, 0)")
+            .transition()
             .call(xAxis);
     });
 
