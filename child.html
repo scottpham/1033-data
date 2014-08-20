@@ -82,6 +82,14 @@
             stroke-width: 1;
         } 
 
+        .y.axis .tick {
+            fill: gray;
+        }
+
+        .y.axis .tick:hover {
+            fill: black;
+        }
+
         .x.axis path,
         .x.axis line {
             shape-rendering: crispEdges;
@@ -106,6 +114,12 @@
             stroke-width: 1;
         }
 
+        .label {
+            font: 10px sans-serif;
+            fill: lightgray;
+
+        }
+
         div.tooltip {
             position: absolute;
             text-align: center;
@@ -123,10 +137,9 @@
     <h1>1033 Data By State</h1>
     <h2>Total cash value of all the military equipment state and local law enforcement have acquired each year through the Department of Defense 1033 Program</h2>
     <select id="dropdown">
-        <option value="2011">Select Year</option>
-        <option value="2011">2011</option>
-        <option value="2012">2012</option>
         <option value="2013">2013</option>
+        <option value="2012">2012</option>
+        <option value="2011">2011</option>
     </select>
     <div id="graphic"></div>
 

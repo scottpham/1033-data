@@ -157,9 +157,10 @@ function render(selected) {
         //build width and apply transition
         svg.selectAll(".bar")
             .transition()
+            .duration(350)
             .attr("width", function(d){ return x(d[selected]); });
 
-
+        //add bar labels
         svg.selectAll(".label")
             .data(data)
             .enter().append("text")
@@ -170,10 +171,10 @@ function render(selected) {
                 .attr("x", function(d) { return x(d[selected]) + 3; })
                 .attr("dy", 3);
 
-        //fade in
+        //fade in labels
         svg.selectAll(".label")
             .transition()
-            .duration(500)
+            .duration(700)
             .style("opacity", 1)
             ;
         
@@ -191,13 +192,13 @@ function render(selected) {
         svg.select(".y.axis")
             .selectAll(".tick")
             .attr("class", function(d, i){ return "tick tick-" + i; } )
-            .on("mouseover", function(d, i) { //tooltip
+            .on("mouseover", function(d, i) { //hover effect
                     svg.selectAll(".label-" + i)
                         .transition()
                         .duration(100)
                         .style("fill", "black");
                     })
-            .on("mouseout", function(d, i) { //make tooltip disappear
+            .on("mouseout", function(d, i) { //make hover disappear
                 svg.selectAll(".label-" + i)
                     .transition()
                     .duration(100)
