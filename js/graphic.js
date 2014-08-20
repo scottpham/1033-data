@@ -5,6 +5,9 @@ var pymChild = null,
     tickNumber = 10
     ;
 
+var dollarFormat = d3.format("$,.1s"),
+    shortDollarFormat = d3.format("$,.3s")
+
 
 
 var $graphic = $('#graphic');
@@ -128,7 +131,7 @@ function render(selected) {
                 .attr("class", "bar")
                 .attr("x", 0)
                 .attr("fill", function(d, i) { return barColor(d); })
-                .attr("width", 0)//set width to 0 and then transition below
+                .attr("width", function(d){ return x(d[selected]); })
                 .attr("y", function(d){ return y(d.state); })
                 .attr("height", y.rangeBand())
                 .on("mouseover", function(d, i) { //label hover effects
@@ -153,31 +156,26 @@ function render(selected) {
                         .duration(100)
                         .style("fill", "gray");
                 }); 
-
-        //build width and apply transition
-        svg.selectAll(".bar")
-            .transition()
-            .duration(350)
-            .attr("width", function(d){ return x(d[selected]); });
+            
 
         //add bar labels
         svg.selectAll(".label")
             .data(data)
             .enter().append("text")
                 .attr("class", "label")
-                .style("opacity",0) //for fade-in
                 .text(function(d) { return "-" + shortDollarFormat(d[selected]); })
                 .attr("y", function(d) { return y(d.state) + (y.rangeBand()/2); })
                 .attr("x", function(d) { return x(d[selected]) + 3; })
                 .attr("dy", 3);
 
-        //fade in labels
+        /*/fade in labels
         svg.selectAll(".label")
             .transition()
             .duration(700)
             .style("opacity", 1)
             ;
-        
+        */
+
         //put an index number on each label so that mouseover events can target them individually
         svg.selectAll(".label")
             .attr("class", function(d, i){ return "label label-" + i; } );
@@ -242,10 +240,64 @@ $(window).load(function() {
     }
 })
 
+
 //listener on dropdown
 d3.select("#dropdown").on("change", function() {
     selected = this.value;
-    draw_graphic(selected);
+    //draw_graphic(selected); //redraw graphic
+    var margin = {
+        top: 30,
+        right: 50,
+        bottom: 20,
+        left: 45
+    };
+
+    //find width of container
+    var width = $('#graphic').width() - margin.left - margin.right;
+    var svg = d3.select("svg");
+    var x = d3.scale.linear().range([0, width]);
+
+    var xAxis = d3.svg.axis()
+        .scale(x)
+        .ticks(tickNumber)
+        .tickFormat(dollarFormat)
+        .orient("top")
+        .tickSize(5, 0, 0);
+
+
+    //data joins happen here
+    d3.csv("state-purchases.csv", type, function(error, data) {
+
+        console.log("it fired");
+
+        x.domain([0, d3.max(data, function(d) { return d["2013"]; })]);
+
+        console.log();
+
+        var bar = svg.selectAll(".bar")
+            .data(data);
+
+        bar.transition()
+            .duration(350)
+            .attr("width", function(d){ return x(d[selected]); });
+
+        svg.selectAll(".label")
+            .data(data)
+                .transition()
+                .duration(500)
+                .text(function(d) { return "-" + shortDollarFormat(d[selected]); })
+                .attr("x", function(d) { return x(d[selected]) + 3; });
+    
+    })
+
+    function type(d){
+        d[selected] = +d[selected];
+        d["2013"] = +d["2013"];
+        return d;
+    }
+
+
+
 
     })
 
