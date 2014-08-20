@@ -32,7 +32,6 @@ function draw_graphic(selected){
     render(selected[0][0].value); //get value of dropdown
 
     }
-
 }
 
 function render(selected) {
@@ -217,9 +216,31 @@ function render(selected) {
         pymChild.sendHeightToParent();
     }
 
+    ///dropdown////////////
+    //listener on dropdown
+    d3.select("#dropdown").on("change", function() {
+        selected = this.value;
+        //data joins happen here
+        d3.csv("state-purchases.csv", type, function(error, data) {
+
+            //bar transition
+            svg.selectAll(".bar")
+                .data(data)
+                .transition()
+                .duration(350)
+                .attr("width", function(d){ return x(d[selected]); });
+
+            //label transition
+            svg.selectAll(".label")
+                .data(data)
+                    .transition()
+                    .duration(500)
+                    .text(function(d) { return "-" + shortDollarFormat(d[selected]); })
+                    .attr("x", function(d) { return x(d[selected]) + 3; });
+        })
+    })
 //end function render    
 }
-
 /*
  * NB: Use window.load instead of document.ready
  * to ensure all images have loaded
@@ -234,65 +255,7 @@ $(window).load(function() {
     }
 })
 
-//listener on dropdown
-d3.select("#dropdown").on("change", function() {
-    selected = this.value;
-    //draw_graphic(selected); //redraw graphic
-    var margin = {
-        top: 30,
-        right: 50,
-        bottom: 20,
-        left: 45
-    };
 
-    //find width of container
-    var width = $('#graphic').width() - margin.left - margin.right;
-    var svg = d3.select("svg");
-    var x = d3.scale.linear().range([0, width]);
-
-    var xAxis = d3.svg.axis()
-        .scale(x)
-        .ticks(tickNumber)
-        .tickFormat(dollarFormat)
-        .orient("top")
-        .tickSize(5, 0, 0);
-
-
-    //data joins happen here
-    d3.csv("state-purchases.csv", type, function(error, data) {
-
-        console.log("it fired");
-
-        x.domain([0, d3.max(data, function(d) { return d["2013"]; })]);
-
-        console.log();
-
-        var bar = svg.selectAll(".bar")
-            .data(data);
-
-        bar.transition()
-            .duration(350)
-            .attr("width", function(d){ return x(d[selected]); });
-
-        svg.selectAll(".label")
-            .data(data)
-                .transition()
-                .duration(500)
-                .text(function(d) { return "-" + shortDollarFormat(d[selected]); })
-                .attr("x", function(d) { return x(d[selected]) + 3; });
-    
-    })
-
-    function type(d){
-        d[selected] = +d[selected];
-        d["2013"] = +d["2013"];
-        return d;
-    }
-
-
-
-
-    })
 
 
 
