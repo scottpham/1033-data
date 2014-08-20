@@ -138,8 +138,7 @@ function render(selected) {
                         .duration(100)
                         .style("fill", "black")
                         .style("font", "12px sans-serif");
-
-                    svg.selectAll(".tick-" + i)
+                    svg.selectAll(".tick-" + i) //tick hover effect
                         .transition()
                         .duration(100)
                         .style("fill", "black")
@@ -151,7 +150,6 @@ function render(selected) {
                         .duration(100)
                         .style("fill", "gray")
                         .style("font", "10px sans-serif");
-
                     svg.selectAll(".tick-" + i)
                         .transition()
                         .duration(100)
@@ -159,7 +157,6 @@ function render(selected) {
                         .style("font", "10px sans-serif");
                 }); 
             
-
         //add bar labels
         svg.selectAll(".label")
             .data(data)
@@ -236,7 +233,6 @@ $(window).load(function() {
     else { pymChild = new pym.Child();
     }
 })
-
 
 //listener on dropdown
 d3.select("#dropdown").on("change", function() {
