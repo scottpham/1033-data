@@ -1,11 +1,11 @@
 var pymChild = null,
     mobileThreshold = 500,
     aspect_width = 1,
-    aspect_height = 1,
+    aspect_height = 1.5,
     tickNumber = 10
     ;
 
-var dollarFormat = d3.format("$,.1s"),
+var dollarFormat = d3.format("$.2s"),
     shortDollarFormat = d3.format("$,.3s")
 
 
@@ -79,8 +79,6 @@ function render(selected) {
     var x = d3.scale.linear().range([0, width]),
         y = d3.scale.ordinal().rangeRoundBands([0, height], 0.15);
 
-    var dollarFormat = d3.format("$,.1s");
-    var shortDollarFormat = d3.format("$,.3s")
 
     var xAxis = d3.svg.axis()
         .scale(x)
@@ -138,23 +136,27 @@ function render(selected) {
                     svg.selectAll(".label-" + i)
                         .transition()
                         .duration(100)
-                        .style("fill", "black");
+                        .style("fill", "black")
+                        .style("font", "12px sans-serif");
 
                     svg.selectAll(".tick-" + i)
                         .transition()
                         .duration(100)
-                        .style("fill", "black");
+                        .style("fill", "black")
+                        .style("font", "12px sans-serif");
                     })
                 .on("mouseout", function(d, i) { //make label hover disappaer
                     svg.selectAll(".label-" + i)
                         .transition()
                         .duration(100)
-                        .style("fill", "lightgray");
+                        .style("fill", "gray")
+                        .style("font", "10px sans-serif");
 
                     svg.selectAll(".tick-" + i)
                         .transition()
                         .duration(100)
-                        .style("fill", "gray");
+                        .style("fill", "gray")
+                        .style("font", "10px sans-serif");
                 }); 
             
 
@@ -168,13 +170,6 @@ function render(selected) {
                 .attr("x", function(d) { return x(d[selected]) + 3; })
                 .attr("dy", 3);
 
-        /*/fade in labels
-        svg.selectAll(".label")
-            .transition()
-            .duration(700)
-            .style("opacity", 1)
-            ;
-        */
 
         //put an index number on each label so that mouseover events can target them individually
         svg.selectAll(".label")
@@ -194,13 +189,15 @@ function render(selected) {
                     svg.selectAll(".label-" + i)
                         .transition()
                         .duration(100)
-                        .style("fill", "black");
+                        .style("fill", "black")
+                        .style("font", "12px sans-serif");
                     })
             .on("mouseout", function(d, i) { //make hover disappear
                 svg.selectAll(".label-" + i)
                     .transition()
                     .duration(100)
-                    .style("fill", "lightgray");
+                    .style("fill", "gray")
+                    .style("font", "10px sans-serif");
             } )
 
         //x axis
