@@ -122,6 +122,7 @@ function render(selected) {
                 .tickFormat("")
             )
 
+        //build out bars
         svg.selectAll(".bar")
               .data(data)
             .enter().append("rect")
@@ -178,6 +179,7 @@ function render(selected) {
             .call(yAxis)
                 .attr("text-anchor", "end");
 
+        //mouseover effects for y axis
         svg.select(".y.axis")
             .selectAll(".tick")
             .attr("class", function(d, i){ return "tick tick-" + i; } )
@@ -238,6 +240,35 @@ function render(selected) {
                     .text(function(d) { return "-" + shortDollarFormat(d[selected]); })
                     .attr("x", function(d) { return x(d[selected]) + 3; });
         })
+    })
+
+    d3.select('#descend').on("click", function() {
+        var dropdown = d3.select("#dropdown") //store dropdownin array
+        var selected = (dropdown[0][0].value);
+
+        d3.csv("state-purchases.csv", type, function(error, data) {
+
+            var ySort = y.domain(data.sort( function(a, b) { return b[selected] - a[selected]; })
+                        .map(function(d) { return d.state; }));
+
+            var transition = svg.transition().duration(550),
+                delay = function(d, i){ return i * 15;}; 
+
+            transition.selectAll(".bar")
+                .attr("y", function(d){ return ySort(d.state); })
+                .delay(delay)
+                ;
+
+            transition.selectAll(".label")
+                    .attr("y", function(d) { return ySort(d.state) + y.rangeBand()/2; })
+                    .delay(delay);
+            
+            transition.select(".y.axis")
+                    .call(yAxis)
+                .selectAll(".tick")
+                    .delay(delay);
+            })
+
     })
 //end function render    
 }
