@@ -1,7 +1,7 @@
 var pymChild = null,
     mobileThreshold = 500,
     aspect_width = 1,
-    aspect_height = 1.5,
+    aspect_height = 1,
     tickNumber = 10
     ;
 
@@ -242,9 +242,8 @@ function render(selected) {
         })
     })
 
+    //order by spending
     d3.select('#descend').on("click", function() {
-        var dropdown = d3.select("#dropdown") //store dropdownin array
-        var selected = (dropdown[0][0].value);
 
         d3.csv("state-purchases.csv", type, function(error, data) {
 
@@ -256,8 +255,7 @@ function render(selected) {
 
             transition.selectAll(".bar")
                 .attr("y", function(d){ return ySort(d.state); })
-                .delay(delay)
-                ;
+                .delay(delay);
 
             transition.selectAll(".label")
                     .attr("y", function(d) { return ySort(d.state) + y.rangeBand()/2; })
