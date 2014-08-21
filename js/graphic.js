@@ -41,7 +41,7 @@ function render(selected) {
         top: 30,
         right: 50,
         bottom: 20,
-        left: 45
+        left: 135
     };
 
     //find width of container
@@ -63,7 +63,7 @@ function render(selected) {
 
     //highlight California
     function barColor(d){
-            if(d.state == 'CA'){
+            if(d.state == 'CALIFORNIA'){
                 return colors.red1;
         }
             else{
@@ -110,8 +110,8 @@ function render(selected) {
                 .ticks(tickNumber)
             }
     //asynchronous call
-    d3.csv("state-purchases.csv", type, function(error, data) {
-        x.domain([0, d3.max(data, function(d) { return d["2013"]; })]);
+    d3.csv("full-state-data.csv", type, function(error, data) {
+        x.domain([0, d3.max(data, function(d) { return d["2011"]; })]);
         y.domain(data.map(function(d) { return d.state; }));
         //grid
         svg.append("g")
@@ -210,7 +210,7 @@ function render(selected) {
     //coercion function
     function type(d){
         d[selected] = +d[selected];
-        d["2013"] = +d["2013"]; //necessary to set domain correctly
+        d["2011"] = +d["2011"]; //necessary to set domain correctly
         return d;
     }
 
@@ -223,7 +223,7 @@ function render(selected) {
     d3.select("#dropdown").on("change", function() {
         selected = this.value;
         //data joins happen here
-        d3.csv("state-purchases.csv", type, function(error, data) {
+        d3.csv("full-state-data.csv", type, function(error, data) {
 
             //bar transition
             svg.selectAll(".bar")
@@ -245,7 +245,7 @@ function render(selected) {
     //order by spending
     d3.select('#descend').on("click", function() {
 
-        d3.csv("state-purchases.csv", type, function(error, data) {
+        d3.csv("full-state-data.csv", type, function(error, data) {
 
             var ySort = y.domain(data.sort( function(a, b) { return b[selected] - a[selected]; })
                         .map(function(d) { return d.state; }));
