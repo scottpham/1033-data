@@ -9,7 +9,6 @@ var dollarFormat = d3.format("$.2s"),
     shortDollarFormat = d3.format("$,.3s")
 
 
-
 var $graphic = $('#graphic');
 
 var colors = {
@@ -109,10 +108,14 @@ function render(selected) {
                 .orient("bottom")
                 .ticks(tickNumber)
             }
+
     //asynchronous call
     d3.csv("full-state-data.csv", type, function(error, data) {
-        x.domain([0, d3.max(data, function(d) { return d["2011"]; })]);
-        y.domain(data.map(function(d) { return d.state; }));
+        x.domain([0, d3.max(data, function(d) { return d[selected]; })]);
+        //y.domain(data.map(function(d) { return d.state; })); real y.domain
+        y.domain(data.sort( function(a, b) { return b[selected] - a[selected]; })
+                        .map(function(d) { return d.state; }));
+
         //grid
         svg.append("g")
             .attr("class", "grid")
@@ -219,7 +222,6 @@ function render(selected) {
     }
 
     ///dropdown////////////
-    //listener on dropdown
     d3.select("#dropdown").on("change", function() {
         selected = this.value;
         //data joins happen here
@@ -229,24 +231,61 @@ function render(selected) {
             svg.selectAll(".bar")
                 .data(data)
                 .transition()
-                .duration(350)
                 .attr("width", function(d){ return x(d[selected]); });
+            
+            //label transition fade out
+            svg.selectAll(".label")
+                    .transition()
+                    .style("opacity", "0")
+                    .attr("x", function(d) { return x(d[selected]) + 3; });
+            
+            //change scale
+            x.domain([0, d3.max(data, function(d) { return d[selected]; })]);
 
-            //label transition
+           //highlight x axis ticks for a moment
+            svg.select(".x.axis").selectAll("text")
+                .style("fill", "black")
+                .style("font", "12px sans-serif");
+
+            //transition scale, reset x axis
+            svg.transition().duration(3000).delay(250).select(".x.axis")
+                .call(xAxis)
+                .selectAll("text")
+                .style("fill", "gray")
+                .style("font", "10px sans-serif");
+
+            //call grid
+            svg.transition().duration(3000).delay(250).selectAll(".grid")
+                .call(make_x_axis()
+                    .tickSize((-height - 10), 0, 0)
+                    .tickFormat(""));
+
+            //resize bars again
+            svg.selectAll(".bar")
+                .data(data)
+                    .transition()
+                    .duration(2500)
+                    .delay(2000)
+                    .attr("width", function(d){ return x(d[selected]); });
+
+            //reposition labels again
             svg.selectAll(".label")
                 .data(data)
                     .transition()
-                    .duration(500)
-                    .text(function(d) { return "-" + shortDollarFormat(d[selected]); })
-                    .attr("x", function(d) { return x(d[selected]) + 3; });
+                    .duration(2500)
+                    .delay(2000)
+                    .style("opacity", "1")
+                    .attr("x", function(d) { return x(d[selected]) + 3; })
+                    .text(function(d) { return "-" + shortDollarFormat(d[selected]); });
         })
     })
 
-    //order by spending
+    //button sort cash
     d3.select('#descend').on("click", function() {
 
         d3.csv("full-state-data.csv", type, function(error, data) {
 
+            //sort domain by column year and map onto state
             var ySort = y.domain(data.sort( function(a, b) { return b[selected] - a[selected]; })
                         .map(function(d) { return d.state; }));
 
@@ -265,9 +304,68 @@ function render(selected) {
                     .call(yAxis)
                 .selectAll(".tick")
                     .delay(delay);
-            })
+        })
+    })
+
+    //button sort alpha
+    d3.select('#alpha').on("click", function() {
+
+        d3.csv("full-state-data.csv", type, function(error, data) {
+
+            //original alpha sort
+            y.domain(data.map(function(d) { return d.state; }));
+
+            var transition = svg.transition().duration(550),
+                delay = function(d, i){ return i * 15;}; 
+
+            transition.selectAll(".bar")
+                .attr("y", function(d){ return y(d.state); })
+                .delay(delay);
+
+            transition.selectAll(".label")
+                    .attr("y", function(d) { return y(d.state) + y.rangeBand()/2; })
+                    .delay(delay);
+            
+            transition.select(".y.axis")
+                    .call(yAxis)
+                .selectAll(".tick")
+                    .delay(delay);
+        })
 
     })
+
+    //button sort size
+    d3.select('#size').on("click", function() {
+
+        d3.csv("full-state-data.csv", type, function(error, data) {
+
+            //sort by column
+            y.domain(data.sort( function(a, b) { return b.Population - a.Population; })
+                .map(function(d) { return d.state; }));
+
+            var transition = svg.transition().duration(550),
+                delay = function(d, i){ return i * 15;}; 
+
+            transition.selectAll(".bar")
+                .attr("y", function(d){ return y(d.state); })
+                .delay(delay);
+
+            transition.selectAll(".label")
+                    .attr("y", function(d) { return y(d.state) + y.rangeBand()/2; })
+                    .delay(delay);
+            
+            transition.select(".y.axis")
+                    .call(yAxis)
+                .selectAll(".tick")
+                    .delay(delay);
+        })
+
+    })
+
+
+
+
+
 //end function render    
 }
 /*
