@@ -109,7 +109,7 @@ function render(selected) {
                 .ticks(tickNumber)
             }
 
-    //asynchronous call
+    //asynchronous csv call
     d3.csv("full-state-data.csv", type, function(error, data) {
         x.domain([0, d3.max(data, function(d) { return d[selected]; })]);
         //y.domain(data.map(function(d) { return d.state; })); real y.domain
@@ -129,51 +129,43 @@ function render(selected) {
         svg.selectAll(".bar")
               .data(data)
             .enter().append("rect")
-                .attr("class", "bar")
+                .attr("class", function(d,i){ return "bar bar-" + i;} )
                 .attr("x", 0)
                 .attr("fill", function(d, i) { return barColor(d); })
                 .attr("width", function(d){ return x(d[selected]); })
                 .attr("y", function(d){ return y(d.state); })
                 .attr("height", y.rangeBand())
-                .on("mouseover", function(d, i) { //label hover effects
-                    svg.selectAll(".label-" + i)
-                        .transition()
-                        .duration(100)
+                //event handlers
+                .on("mouseover", function(d, i) {
+                    svg.selectAll(".label-" + i).transition().duration(100)
                         .style("fill", "black")
                         .style("font", "12px sans-serif");
-                    svg.selectAll(".tick-" + i) //tick hover effect
-                        .transition()
-                        .duration(100)
+                    svg.selectAll(".tick-" + i).transition().duration(100)
                         .style("fill", "black")
                         .style("font", "12px sans-serif");
+                    svg.selectAll(".bar-" + i).transition().duration(100)
+                        .style("opacity", "0.75");
                     })
-                .on("mouseout", function(d, i) { //make label hover disappaer
-                    svg.selectAll(".label-" + i)
-                        .transition()
-                        .duration(100)
+                .on("mouseout", function(d, i) {
+                    svg.selectAll(".label-" + i).transition().duration(100)
                         .style("fill", "gray")
                         .style("font", "10px sans-serif");
-                    svg.selectAll(".tick-" + i)
-                        .transition()
-                        .duration(100)
+                    svg.selectAll(".tick-" + i).transition().duration(100)
                         .style("fill", "gray")
                         .style("font", "10px sans-serif");
+                    svg.selectAll(".bar-" + i).transition().duration(100)
+                        .style("opacity", "1");
                 }); 
             
         //add bar labels
         svg.selectAll(".label")
             .data(data)
             .enter().append("text")
-                .attr("class", "label")
+                .attr("class", function(d, i){ return "label label-" + i; } )
                 .text(function(d) { return "-" + shortDollarFormat(d[selected]); })
                 .attr("y", function(d) { return y(d.state) + (y.rangeBand()/2); })
                 .attr("x", function(d) { return x(d[selected]) + 3; })
                 .attr("dy", 3);
-
-
-        //put an index number on each label so that mouseover events can target them individually
-        svg.selectAll(".label")
-            .attr("class", function(d, i){ return "label label-" + i; } );
 
         //y axis 
         svg.append("g")
@@ -186,20 +178,30 @@ function render(selected) {
         svg.select(".y.axis")
             .selectAll(".tick")
             .attr("class", function(d, i){ return "tick tick-" + i; } )
-            .on("mouseover", function(d, i) { //hover effect
-                    svg.selectAll(".label-" + i)
-                        .transition()
-                        .duration(100)
-                        .style("fill", "black")
-                        .style("font", "12px sans-serif");
+            .on("mouseover", function(d, i) { 
+                    //hover effect - self
+                svg.selectAll(".tick-" + i).transition().duration(100)
+                    .style("fill", "black")
+                    .style("font", "12px sans-serif");
+                    //hover effect - labels
+                svg.selectAll(".label-" + i).transition().duration(100)
+                    .style("fill", "black")
+                    .style("font", "12px sans-serif");
+                    //hover effect - bars
+                svg.selectAll(".bar-" + i).transition().duration(100)
+                        .style("opacity", "0.75");
                     })
             .on("mouseout", function(d, i) { //make hover disappear
-                svg.selectAll(".label-" + i)
-                    .transition()
-                    .duration(100)
+                svg.selectAll(".label-" + i).transition().duration(100)
                     .style("fill", "gray")
                     .style("font", "10px sans-serif");
-            } )
+                 //hover effect - bars
+                svg.selectAll(".bar-" + i).transition().duration(100)
+                    .style("opacity", "1");
+                svg.selectAll(".tick-" + i).transition().duration(100)
+                    .style("fill", "gray")
+                    .style("font", "10px sans-serif");
+            })
 
         //x axis
         svg.append("g")
