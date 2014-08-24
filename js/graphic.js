@@ -211,6 +211,9 @@ function render(selected) {
 
         ///dropdown////////////
     d3.select("#dropdown").on("change", function() {
+
+       $('#graphic').addClass('no-mouse');
+
         selected = this.value;
 
         data.forEach(function(d) {
@@ -275,6 +278,9 @@ function render(selected) {
                 .style("opacity", "1")
                 .attr("x", function(d) { return x2(d[selected]) + 3; })
                 .text(function(d) { return "-" + shortDollarFormat(d[selected]); });
+
+        setTimeout(function() {
+                $('#graphic').removeClass('no-mouse')}, 3000);
                 
     });
 
@@ -298,6 +304,11 @@ function render(selected) {
 
     //button sort cash
     d3.select('#descend').on("click", function() {
+
+        $('#graphic').addClass('no-mouse');
+
+        setTimeout(function() {
+                $('#graphic').removeClass('no-mouse')}, 550 + 15*55);
 
         d3.csv("full-state-data.csv", type, function(error, data) {
 
@@ -327,6 +338,8 @@ function render(selected) {
     //button sort alpha
     d3.select('#alpha').on("click", function() {
 
+        $('#graphic').addClass('no-mouse');
+
         d3.csv("full-state-data.csv", type, function(error, data) {
             //original alpha sort
             y.domain(data.map(function(d) { return d.state; }));
@@ -347,12 +360,20 @@ function render(selected) {
                     .call(yAxis)
                 .selectAll(".tick")
                     .delay(delay);
-        })
 
+            setTimeout(function() {
+                $('#graphic').removeClass('no-mouse')}, 550 + 15*55);
+
+         })
     })
 
     //button sort size
     d3.select('#size').on("click", function() {
+
+        $('#graphic').addClass('no-mouse');
+
+        setTimeout(function() {
+                $('#graphic').removeClass('no-mouse')}, 550 + 15*55);
 
         d3.csv("full-state-data.csv", type, function(error, data) {
 
@@ -376,9 +397,8 @@ function render(selected) {
                     .call(yAxis)
                 .selectAll(".tick")
                     .delay(delay);
-        })
-
-    })
+        });
+    });
 
 
 
