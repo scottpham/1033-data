@@ -208,6 +208,80 @@ function render(selected) {
             .attr("class", "x axis")
             .attr("transform", "translate(0, 0)")
             .call(xAxis);
+
+        ///dropdown////////////
+    d3.select("#dropdown").on("change", function() {
+        selected = this.value;
+
+        data.forEach(function(d) {
+        d[selected] = +d[selected];
+        });
+
+        //highlight x axis ticks for a moment
+        svg.select(".x.axis").selectAll("text")
+            .style("fill", "black")
+            .style("font", "12px sans-serif");
+
+        //initial bar transition w/ old scale
+        svg.selectAll(".bar")
+            .data(data)
+            .transition()
+            .duration(300)
+            .attr("width", function(d){ return x(d[selected]); });
+        
+        //label transition fade out
+        svg.selectAll(".label")
+                .transition()
+                .duration(300)
+                .style("opacity", "0")
+                .attr("x", function(d) { return x(d[selected]) + 3; });
+        
+        //change scale to selected
+        x2 = x.copy();
+        x2 = x.domain([0, d3.max(data, function(d) { return d[selected]; })]);
+
+
+        //transition scale, reset x axis
+        svg.transition().duration(2500).delay(250)
+          .ease("quad")
+          .select(".x.axis")
+            .call(xAxis)
+            .selectAll("text")
+            .style("fill", "gray")
+            .style("font", "10px sans-serif");
+
+        //call grid
+        svg.transition().duration(2500).delay(250)
+          .ease("quad")
+          .selectAll(".grid")
+            .call(make_x_axis()
+                .tickSize((-height - 10), 0, 0)
+                .tickFormat(""));
+
+        //resize bars again
+        svg.selectAll(".bar")
+            .data(data)
+                .transition()
+                .duration(1500)
+                .delay(1500)
+                .attr("width", function(d){ return x2(d[selected]); });
+
+        //reposition labels again
+        svg.selectAll(".label")
+            .data(data)
+                .transition()
+                .duration(1500)
+                .delay(1500)
+                .style("opacity", "1")
+                .attr("x", function(d) { return x2(d[selected]) + 3; })
+                .text(function(d) { return "-" + shortDollarFormat(d[selected]); });
+                
+    });
+
+
+
+    
+    //end of csv call function
     });
 
     //coercion function
@@ -221,71 +295,6 @@ function render(selected) {
         pymChild.sendHeightToParent();
     }
 
-    ///dropdown////////////
-    d3.select("#dropdown").on("change", function() {
-        selected = this.value;
-        //data joins happen here
-        d3.csv("full-state-data.csv", type, function(error, data) {
-
-
-            //highlight x axis ticks for a moment
-            svg.select(".x.axis").selectAll("text")
-                .style("fill", "black")
-                .style("font", "12px sans-serif");
-
-            //bar transition
-            svg.selectAll(".bar")
-                .data(data)
-                .transition()
-                .duration(300)
-                .attr("width", function(d){ return x(d[selected]); });
-            
-            //label transition fade out
-            svg.selectAll(".label")
-                    .transition()
-                    .duration(300)
-                    .style("opacity", "0")
-                    .attr("x", function(d) { return x(d[selected]) + 3; });
-            
-            //change scale
-            x.domain([0, d3.max(data, function(d) { return d[selected]; })]);
-
-            //transition scale, reset x axis
-            svg.transition().duration(2500).delay(250)
-              .ease("quad")
-              .select(".x.axis")
-                .call(xAxis)
-                .selectAll("text")
-                .style("fill", "gray")
-                .style("font", "10px sans-serif");
-
-            //call grid
-            svg.transition().duration(2500).delay(250)
-              .ease("quad")
-              .selectAll(".grid")
-                .call(make_x_axis()
-                    .tickSize((-height - 10), 0, 0)
-                    .tickFormat(""));
-
-            //resize bars again
-            svg.selectAll(".bar")
-                .data(data)
-                    .transition()
-                    .duration(1500)
-                    .delay(1500)
-                    .attr("width", function(d){ return x(d[selected]); });
-
-            //reposition labels again
-            svg.selectAll(".label")
-                .data(data)
-                    .transition()
-                    .duration(1500)
-                    .delay(1500)
-                    .style("opacity", "1")
-                    .attr("x", function(d) { return x(d[selected]) + 3; })
-                    .text(function(d) { return "-" + shortDollarFormat(d[selected]); });
-        })
-    })
 
     //button sort cash
     d3.select('#descend').on("click", function() {
@@ -319,7 +328,6 @@ function render(selected) {
     d3.select('#alpha').on("click", function() {
 
         d3.csv("full-state-data.csv", type, function(error, data) {
-
             //original alpha sort
             y.domain(data.map(function(d) { return d.state; }));
 
