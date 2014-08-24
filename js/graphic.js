@@ -206,8 +206,6 @@ function render(selected) {
             .attr("class", "x axis")
             .attr("transform", "translate(0, 0)")
             .call(xAxis);
-
-
     });
 
     //coercion function
@@ -227,35 +225,42 @@ function render(selected) {
         //data joins happen here
         d3.csv("full-state-data.csv", type, function(error, data) {
 
+
+            //highlight x axis ticks for a moment
+            svg.select(".x.axis").selectAll("text")
+                .style("fill", "black")
+                .style("font", "12px sans-serif");
+
             //bar transition
             svg.selectAll(".bar")
                 .data(data)
                 .transition()
+                .duration(300)
                 .attr("width", function(d){ return x(d[selected]); });
             
             //label transition fade out
             svg.selectAll(".label")
                     .transition()
+                    .duration(300)
                     .style("opacity", "0")
                     .attr("x", function(d) { return x(d[selected]) + 3; });
             
             //change scale
             x.domain([0, d3.max(data, function(d) { return d[selected]; })]);
 
-           //highlight x axis ticks for a moment
-            svg.select(".x.axis").selectAll("text")
-                .style("fill", "black")
-                .style("font", "12px sans-serif");
-
             //transition scale, reset x axis
-            svg.transition().duration(3000).delay(250).select(".x.axis")
+            svg.transition().duration(2500).delay(250)
+              .ease("quad")
+              .select(".x.axis")
                 .call(xAxis)
                 .selectAll("text")
                 .style("fill", "gray")
                 .style("font", "10px sans-serif");
 
             //call grid
-            svg.transition().duration(3000).delay(250).selectAll(".grid")
+            svg.transition().duration(2500).delay(250)
+              .ease("quad")
+              .selectAll(".grid")
                 .call(make_x_axis()
                     .tickSize((-height - 10), 0, 0)
                     .tickFormat(""));
@@ -264,16 +269,16 @@ function render(selected) {
             svg.selectAll(".bar")
                 .data(data)
                     .transition()
-                    .duration(2500)
-                    .delay(2000)
+                    .duration(1500)
+                    .delay(1500)
                     .attr("width", function(d){ return x(d[selected]); });
 
             //reposition labels again
             svg.selectAll(".label")
                 .data(data)
                     .transition()
-                    .duration(2500)
-                    .delay(2000)
+                    .duration(1500)
+                    .delay(1500)
                     .style("opacity", "1")
                     .attr("x", function(d) { return x(d[selected]) + 3; })
                     .text(function(d) { return "-" + shortDollarFormat(d[selected]); });
@@ -294,7 +299,8 @@ function render(selected) {
 
             transition.selectAll(".bar")
                 .attr("y", function(d){ return ySort(d.state); })
-                .delay(delay);
+                .delay(delay)
+                .attr("fill", function(d, i) { return barColor(d); });
 
             transition.selectAll(".label")
                     .attr("y", function(d) { return ySort(d.state) + y.rangeBand()/2; })
@@ -320,7 +326,8 @@ function render(selected) {
 
             transition.selectAll(".bar")
                 .attr("y", function(d){ return y(d.state); })
-                .delay(delay);
+                .delay(delay)
+                .attr("fill", function(d, i) { return barColor(d); });
 
             transition.selectAll(".label")
                     .attr("y", function(d) { return y(d.state) + y.rangeBand()/2; })
@@ -348,7 +355,8 @@ function render(selected) {
 
             transition.selectAll(".bar")
                 .attr("y", function(d){ return y(d.state); })
-                .delay(delay);
+                .delay(delay)
+                .attr("fill", function(d, i) { return barColor(d); });
 
             transition.selectAll(".label")
                     .attr("y", function(d) { return y(d.state) + y.rangeBand()/2; })
