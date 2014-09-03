@@ -110,7 +110,7 @@ function render(selected) {
             }
 
     //asynchronous csv call
-    d3.csv("full-state-data.csv", type, function(error, data) {
+    d3.csv("full-state-data2.csv", type, function(error, data) {
         x.domain([0, d3.max(data, function(d) { return d[selected]; })]);
         //y.domain(data.map(function(d) { return d.state; })); real y.domain
         y.domain(data.sort( function(a, b) { return b[selected] - a[selected]; })
@@ -310,7 +310,7 @@ function render(selected) {
         setTimeout(function() {
                 $('#graphic').removeClass('no-mouse')}, 550 + 15*55);
 
-        d3.csv("full-state-data.csv", type, function(error, data) {
+        d3.csv("full-state-data2.csv", type, function(error, data) {
 
             //sort domain by column year and map onto state
             var ySort = y.domain(data.sort( function(a, b) { return b[selected] - a[selected]; })
@@ -340,7 +340,7 @@ function render(selected) {
 
         $('#graphic').addClass('no-mouse');
 
-        d3.csv("full-state-data.csv", type, function(error, data) {
+        d3.csv("full-state-data2.csv", type, function(error, data) {
             //original alpha sort
             y.domain(data.map(function(d) { return d.state; }));
 
@@ -375,7 +375,7 @@ function render(selected) {
         setTimeout(function() {
                 $('#graphic').removeClass('no-mouse')}, 550 + 15*55);
 
-        d3.csv("full-state-data.csv", type, function(error, data) {
+        d3.csv("full-state-data2.csv", type, function(error, data) {
 
             //sort by column
             y.domain(data.sort( function(a, b) { return b.Population - a.Population; })
